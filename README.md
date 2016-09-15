@@ -2,8 +2,6 @@
 
 configure gopath
 ```
-$ cat .bash_profile
-
 #Golang settings
 export PATH=$PATH:/usr/local/opt/go/libexec/bin
 export GOPATH=$HOME/Projects/go  #/Users/halyph/Projects/go
