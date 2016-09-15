@@ -23,6 +23,6 @@ $ go install golang.org/x/tools/cmd/present
 ```
 $ present
 ```
-[[http://localhost:3999]]
+[presentation link](http://localhost:3999])
 
 kudos: http://halyph.com/blog/2015/05/18/golang-presentation-tool.html
