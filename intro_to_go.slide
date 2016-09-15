@@ -1,0 +1,182 @@
+Ready. Set. Go(lang).
+A New Take on Network Programming
+15 Sep 2016
+
+Travis Lanham
+
+* Agenda
+
+- History
+- Why Bother? 
+- The Basics
+- Network Programming
+- What's Under the Hood
+- The New Hotness - where does go fit in
+- Where go is going
+
+* Disclosure 
+
+- I'm a noob, about 4 months since I hello world'd
+- heavy on memes
+
+.image images/noob.jpg
+
+* History
+
+Inspiration
+
+- "Communicating Sequential Processes" 1978 paper by Tony Hoare (inventor of quicksort)
+- Proposed a new take on concurrency using channels instead of locks
+- Instead of locking on to shared memory, have processes communicate asynchronously 
+- Locks good for shared state like caching (everyone needs the same memory); channels good for worker pool (go do work and leave a message with your results)
+
+Implementation
+
+- Created at google in 2007
+- Initial authors: Ken Thompson (of UNIX and C repute), Robert Griesemer, Rob Pike
+- Open-sourced in 2009 [[https://github.com/golang/go]]
+
+* Why Bother?
+
+Who's using it?
+- Uber, Dropbox, Twitch (converting critical code from python to go)
+- Netflix, MongoDB, SpaceX (telemetry servers)
+- Docker (they really <3 go, more  [[https://github.com/docker/docker][go]] than [[https://github.com/golang/go][go]])
+- of course google, early use was dl.google.com for chrome downloads
+
+A common theme... critical networking applicaitons
+
+* Hello
+
+.play examples/hello.go
+
+- compiled, static-typing
+- garbage collected 
+- static linking (don't need to worry about dependencies)
+- no pointer arithmetic 
+- compiler decides where to allocate memory
+
+* The Basics
+- system type (backwards)
+    type [name] [specification]
+    var a int = 2   // verbose
+    var a = 2       // type omitted
+    a := 2          // implicit
+
+- structs
+    type Person struct {
+        name string
+        age int
+    }
+
+- functions
+    func [name] ([params]) ([return value(s)])
+    func sum(a int, b int) int {
+        return a + b
+    }
+
+* Network Programming
+
+send your data to your network card and into the world, then wait - the conversation takes a long time, especially when you have 100k other people waiting to talk to you
+
+.image images/mr_popular.jpg
+
+* Small But Mighty
+
+.play examples/time_server.go
+
+[[http://localhost:7777]]
+
+* Production Ready
+
+.image images/come_at_me.jpg 400 300
+
+* The Secret Sauce
+
+Inside ListenAndServe():
+
+    func (srv *Server) Serve(l net.Listener) error {
+        defer l.Close()  // never forget to close another file
+        ...
+        ...
+        for {
+            c := srv.newConn(rw)
+            go c.serve(ctx)
+        }
+    }
+
+* What's a goroutine
+
+- basically a super light thread
+    go func(args)
+- no return or join 
+- fire and forget, no programmer management
+
+.image images/gopher_blue.png 75 50 
+
+* Is This Really New?
+
+- nonblocking i/o exists in other languages
+- what does the os give us?
+    select()    // worked for the 80s
+    poll()      // first attempt for high performance, good for about 1000 connections
+    epoll()
+- remember dl.google.com - originally in C++ with epoll()
+- hundreds of lines of dense code reduced to 1 (caveat: the wizard is providing some magic behind the curtain)
+
+.image images/wonka.jpg 200 250
+
+* What's Under the Hood
+
+A Step Back
+
+- user space vs kernel space 
+- user function api: import the pandas module and use one of its functions
+- syscall api: os provided function that operates in protected kernel space
+- when a syscall is made, the kernel sucks parameters into priviledged memory to run, blocked until finished 
+
+Your very own scheduler
+
+- uses runtime scheduler (in user space) to manage goroutines (each has its own stack, instruction pointer, scheduling info)
+- pool of threads (ideally always have 1 running per core with some backups for when one goes into a blocking syscall) each with its own queue of goroutines
+- load balancing to redistribute work between threads
+
+* The Scheduler
+
+.image images/scheduler.png
+
+* Blocking on syscall
+
+.image images/syscall.png
+
+- drawings inspired by: https://morsmachine.dk/go-scheduler
+
+* Awe
+- that's for every program!
+.image images/awe.jpg 500 800
+
+* Where is it "Going"
+
+- higher level language for performant servers
+- not a low level replacement
+- rust vs go is a false dichotomy
+- C/C++ isn't going anywhere
+- university: from a quick google, CMU has a distributed systems class using it, otherwise not much
+
+
+* Resources
+- [[golang.org]]
+- [[https://tour.golang.org/welcome/1]]
+
+* Citations - Please Don't Sue
+- https://morsmachine.dk/go-scheduler
+- https://godoc.org/golang.org/x/tools/present#pkg-files
+- http://www.ulduzsoft.com/2014/01/select-poll-epoll-practical-difference-for-system-architects/
+- https://pixabay.com
+- Golang.org
+- http://halyph.com/blog/2015/05/18/golang-presentation-tool.html
+- https://en.wikipedia.org/wiki/Go_(programming_language)#History
+- https://talks.golang.org/2015/go4cpp.slide#12
+- https://golang.org/src/net/http/server.go?s=71563:71618#L2339
+
+
