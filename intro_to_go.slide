@@ -25,7 +25,7 @@ Travis Lanham
 
 Inspiration
 
-- "Communicating Sequential Processes" 1978 paper by Tony Hoare (inventor of quicksort)
+- "Communicating Sequential Processes" 1978 paper by Tony Hoare (quicksort)
 - Proposed a new take on concurrency using channels instead of locks
 - Instead of locking on to shared memory, have processes communicate asynchronously 
 - Locks good for shared state like caching (everyone needs the same memory); channels good for worker pool (go do work and leave a message with your results)
@@ -75,6 +75,10 @@ A common theme... critical networking applicaitons
         return a + b
     }
 
+* What are Channels
+
+.play examples/channels.go
+
 * Network Programming
 
 send your data to your network card and into the world, then wait - the conversation takes a long time, especially when you have 100k other people waiting to talk to you
@@ -87,7 +91,7 @@ send your data to your network card and into the world, then wait - the conversa
 
 [[http://localhost:7777]]
 
-* Production Ready
+* Production Ready - Ship It
 
 .image images/come_at_me.jpg 400 300
 
